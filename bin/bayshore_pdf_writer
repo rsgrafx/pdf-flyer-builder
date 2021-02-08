@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require_relative '../lib/flyer'
+
+options = {}
+
+OptionParser.new do |opts|
+  opts.on("-f FILE") do |file_path|
+    Flyer.run_from_path(file_path)
+  end
+end
