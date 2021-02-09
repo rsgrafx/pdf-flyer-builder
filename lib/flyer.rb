@@ -15,14 +15,15 @@ class Flyer
 
   @@uri = URI::Parser.new
 
+  @@asset_path = File.dirname(File.expand_path(__FILE__))
+
 
   def self.run_from_path(path) 
-    run({file_path: path})
+    Flyer.run(path)
   end
 
-  def self.run(options)
+  def self.run(file_path)
     file_data = {}
-    file_path = options[:file_path]
     # puts options
         
     file_data[:name] = File.basename(file_path, ".*")
@@ -32,13 +33,13 @@ class Flyer
     
     file_data[:parsed] = Hash[JSON.parse(file.read).map {|k, v| [k.to_sym, v]}]
     
-    Prawn::Document.generate("#{dir}/data-one-#{file_data[:name]}.pdf") do
+    Prawn::Document.generate("#{dir}/one-agency-listing-#{file_data[:name]}.pdf") do
       
     font_families.update(
         'Clear Sans' => { 
-          normal: 'assets/fonts/ClearSans-Regular.ttf',
-          bold: 'assets/fonts/ClearSans-Bold.ttf',
-          thin: 'assets/fonts/ClearSans-Thin.ttf'
+          normal: "#{@@asset_path}/assets/fonts/ClearSans-Regular.ttf",
+          bold: "#{@@asset_path}/assets/fonts/ClearSans-Bold.ttf",
+          thin: "#{@@asset_path}/assets/fonts/ClearSans-Thin.ttf"
         }
       )
 
@@ -51,18 +52,6 @@ class Flyer
         fill_rectangle([0, cursor], 800, 1000)
       end
 
-      # create_stamp('for-sale') do
-      #   rotate(30, origin: [-5, -5]) do
-      #     stroke_color @@orange
-      #     fill_color @@orange
-
-      #     font('Clear Sans') do 
-      #       draw_text 'For Sale', at: [-23, -3], color: 'ffffff'
-      #     end
-      #     fill_color @@orange
-      #   end
-      # end
-
       bounding_box([0, cursor], width: 600, height: 400) do
         main_photo_url = parsed[:main_photo]["large_photo_url"]
         image URI.open(@@uri.escape(main_photo_url)), fit: [600, 350]
@@ -71,22 +60,29 @@ class Flyer
         fill_rectangle([-100, cursor+10], 800, 60)
       end
 
-      # stamp_at 'for-sale', at: [10, 650]
+      rotate(30, origin: [50, 700]) do
+        fill_color @@orange
+        fill_rectangle([-90, 700], 400, 50)
+        fill_color 'ffffff'
+        font_size 25
+        font 'Clear Sans', style: :bold
+        draw_text 'For Sale', at: [40, 670]
+      end
       
       unless parsed[:agent]["profile_image"].is_a? NilClass
         agent_image_url = @@uri.escape(parsed[:agent]["profile_image"])
         image URI.open(agent_image_url), fit: [130, 150], at: [390, 460]
       end
 
-      @inset_photo = parsed[:photos][-1]["large_photo_url"]
-      image URI.open(@@uri.escape(@inset_photo)), width: 200, at: [300, 700]
-
+      @inset_photo = parsed[:photos][-1]["large_photo_url"]    
+      image URI.open(@@uri.escape(@inset_photo)), width: 200, at: [325, 700]
+      
       bounding_box([0, cursor+50], width: 600, height: 400) do
-        # Address
+      #   # Address
         font 'Clear Sans', style: :bold
         font_size 23
         location = parsed[:location]
-        # font :Helvetica, style: :bold
+
         address = "#{location["street_name"]}, #{location["city"]}"
         text address, color: 'ffffff'
         # Property Description
@@ -98,7 +94,7 @@ class Flyer
           define_grid(columns: 12, rows: 4)
           
           grid(0, 0).bounding_box do
-            image "assets/bed.png", width: 40
+            image "#{@@asset_path}/assets/bed.png", width: 40
           end
 
           grid(0, 1).bounding_box do
@@ -107,7 +103,7 @@ class Flyer
           end
 
           grid(0, 2).bounding_box do
-            image "assets/bath.png", width: 40
+            image "#{@@asset_path}/assets/bath.png", width: 40
           end
 
           grid(0, 3).bounding_box do
@@ -116,7 +112,7 @@ class Flyer
           end
 
           grid(0, 4).bounding_box do
-            image "assets/car.png", width: 40
+            image "#{@@asset_path}/assets/car.png", width: 40
           end
 
           grid(0, 5).bounding_box do
@@ -145,19 +141,14 @@ class Flyer
 
           grid([3,0], [3,5]).bounding_box do
             move_down 10
-            image "assets/bayshore-logo.png", width: 150, at: [10, 20]
+            image "#{@@asset_path}/assets/bayshore-logo.png", width: 150, at: [10, 20]
             font_size 20
             text "Lic. NO. #011", color: @@text_color
-          end
-
-          # grid([3,6], [3,11]).bounding_box do
-          #   # font_size 20
-          # end
-          # grid.show_all
-          
+          end          
         end
       
       end
+
       fill_color @@orange
       fill_rectangle([-100, cursor], 800, 10)
     end

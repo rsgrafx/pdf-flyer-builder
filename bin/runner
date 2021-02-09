@@ -2,6 +2,4 @@
 
 require_relative '../lib/flyer'
 
-Flyer.run_from_path("/Users/orionengleton/Code/property-portal-listing-json/flyer-385.json")
-Flyer.run_from_path("/Users/orionengleton/Code/property-portal-listing-json/flyer-382.json")
-Flyer.run_from_path("/Users/orionengleton/Code/property-portal-listing-json/flyer-378.json")
+Flyer.run_from_path("/Users/orionengleton/Code/property-portal-listing-json/flyer-361.json")
