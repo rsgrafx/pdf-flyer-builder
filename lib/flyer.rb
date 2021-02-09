@@ -54,7 +54,7 @@ class Flyer
 
       bounding_box([0, cursor], width: 600, height: 400) do
         main_photo_url = parsed[:main_photo]["large_photo_url"]
-        image URI.open(@@uri.escape(main_photo_url)), fit: [600, 350]
+        image URI.open(@@uri.unescape(main_photo_url)), fit: [600, 350]
         
         fill_color @@orange
         fill_rectangle([-100, cursor+10], 800, 60)
