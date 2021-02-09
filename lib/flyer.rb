@@ -64,30 +64,29 @@ class Flyer
         fill_color @@orange
         fill_rectangle([-90, 700], 400, 50)
         fill_color 'ffffff'
-        font_size 25
+        font_size 40
         font 'Clear Sans', style: :bold
-        draw_text 'For Sale', at: [40, 670]
+        draw_text 'For Sale', at: [10, 660]
       end
       
       unless parsed[:agent]["profile_image"].is_a? NilClass
         agent_image_url = @@uri.escape(parsed[:agent]["profile_image"])
-        image URI.open(agent_image_url), fit: [130, 150], at: [390, 460]
+        image URI.open(agent_image_url), fit: [130, 150], at: [390, 480]
       end
 
       @inset_photo = parsed[:photos][-1]["large_photo_url"]    
-      image URI.open(@@uri.escape(@inset_photo)), width: 200, at: [325, 700]
+      image URI.open(@@uri.escape(@inset_photo)), width: 200, at: [325, 710]
       
       bounding_box([0, cursor+50], width: 600, height: 400) do
       #   # Address
         font 'Clear Sans', style: :bold
-        font_size 23
+        font_size 20
         location = parsed[:location]
-
         address = "#{location["street_name"]}, #{location["city"]}"
         text address, color: 'ffffff'
         # Property Description
         # move_down 5
-        font_size 18
+        font_size 16
         text parsed[:details]["title_description"], color: "000000"
         
         bounding_box([0, cursor - 10], width: 540, height: 300) do
@@ -123,17 +122,22 @@ class Flyer
           grid([0, 6], [3, 11]).bounding_box do
             fill_color 'fff333'
             font_size 12
+            font 'Clear Sans', style: :normal
+            move_down 3
             text parsed[:details]["full_description"], color: @@text_color            
           end
 
           grid([1, 0], [2, 5]).bounding_box do
-
-            font_size 25
+            
+            font_size 15
             font 'Clear Sans', style: :bold
-            text "#{parsed[:agent]["first_name"]} #{parsed[:agent]["last_name"]}", color: @@text_color
+            text "Call Agent:"
+            move_down 10
+            font_size 25
+            text "#{parsed[:agent]["first_name"]} #{parsed[:agent]["last_name"]}", color: @@orange
             font_size 20
             font 'Clear Sans', style: :bold
-            text "Ph: #{parsed[:agent]["phone_number"]}", color: @orange
+            text "Ph: #{parsed[:agent]["phone_number"]}", color: @@orange
             font_size 15
             font 'Clear Sans', style: :normal
             text "Email: #{parsed[:agent]["email"]}", color: @@text_color
@@ -141,14 +145,16 @@ class Flyer
 
           grid([3,0], [3,5]).bounding_box do
             move_down 10
-            image "#{@@asset_path}/assets/bayshore-logo.png", width: 150, at: [10, 20]
+            image "#{@@asset_path}/assets/bayshore-logo.png", width: 150, at: [5, 10]
             font_size 20
+            move_down 10
+            font 'Clear Sans', style: :bold
             text "Lic. NO. #011", color: @@text_color
           end          
         end
       
       end
-
+      
       fill_color @@orange
       fill_rectangle([-100, cursor], 800, 10)
     end
