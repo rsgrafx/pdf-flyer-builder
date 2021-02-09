@@ -15,8 +15,7 @@ class Flyer
 
   @@uri = URI::Parser.new
 
-  @@asset_path = File.dirname(File.expand_path(__FILE__))
-
+  @@asset_path = File.dirname(File.expand_path(__FILE__)) + "/assets"
 
   def self.run_from_path(path) 
     Flyer.run(path)
@@ -24,22 +23,20 @@ class Flyer
 
   def self.run(file_path)
     file_data = {}
-    # puts options
         
     file_data[:name] = File.basename(file_path, ".*")
     file_data[:dir] = dir = File.dirname(file_path)
-    # puts file_data.inspect    
-    file = File.open(file_path)
-    
+
+    file = File.open(file_path)    
     file_data[:parsed] = Hash[JSON.parse(file.read).map {|k, v| [k.to_sym, v]}]
     
     Prawn::Document.generate("#{dir}/#{file_data[:name]}.pdf") do
       
     font_families.update(
         'Clear Sans' => { 
-          normal: "#{@@asset_path}/assets/fonts/ClearSans-Regular.ttf",
-          bold: "#{@@asset_path}/assets/fonts/ClearSans-Bold.ttf",
-          thin: "#{@@asset_path}/assets/fonts/ClearSans-Thin.ttf"
+          normal: "#{@@asset_path}/fonts/ClearSans-Regular.ttf",
+          bold: "#{@@asset_path}/fonts/ClearSans-Bold.ttf",
+          thin: "#{@@asset_path}/fonts/ClearSans-Thin.ttf"
         }
       )
 
@@ -74,18 +71,23 @@ class Flyer
         image URI.open(agent_image_url), fit: [130, 150], at: [390, 480]
       end
 
-      @inset_photo = parsed[:photos][-1]["large_photo_url"]    
+      @inset_photo = parsed[:photos][-1]["large_photo_url"]
+      begin 
       image URI.open(@@uri.escape(@inset_photo)), width: 200, at: [325, 710]
+      rescue OpenURI::HTTPError => e
+        puts "#{e.inspect}"
+        image URI.open(@@uri.unescape(@inset_photo)), width: 200, at: [325, 710]
+      end
       
       bounding_box([0, cursor+50], width: 600, height: 400) do
-      #   # Address
+        # Address
         font 'Clear Sans', style: :bold
         font_size 20
         location = parsed[:location]
         address = "#{location["street_name"]}, #{location["city"]}"
         text address, color: 'ffffff'
+
         # Property Description
-        # move_down 5
         font_size 16
         text parsed[:details]["title_description"], color: "000000"
         
@@ -93,7 +95,7 @@ class Flyer
           define_grid(columns: 12, rows: 4)
           
           grid(0, 0).bounding_box do
-            image "#{@@asset_path}/assets/bed.png", width: 40
+            image "#{@@asset_path}/bed.png", width: 40
           end
 
           grid(0, 1).bounding_box do
@@ -102,7 +104,7 @@ class Flyer
           end
 
           grid(0, 2).bounding_box do
-            image "#{@@asset_path}/assets/bath.png", width: 40
+            image "#{@@asset_path}/bath.png", width: 40
           end
 
           grid(0, 3).bounding_box do
@@ -111,7 +113,7 @@ class Flyer
           end
 
           grid(0, 4).bounding_box do
-            image "#{@@asset_path}/assets/car.png", width: 40
+            image "#{@@asset_path}/car.png", width: 40
           end
 
           grid(0, 5).bounding_box do
@@ -145,7 +147,7 @@ class Flyer
 
           grid([3,0], [3,5]).bounding_box do
             move_down 10
-            image "#{@@asset_path}/assets/bayshore-logo.png", width: 150, at: [5, 10]
+            image "#{@@asset_path}/bayshore-logo.png", width: 150, at: [5, 10]
             font_size 20
             move_down 10
             font 'Clear Sans', style: :bold
