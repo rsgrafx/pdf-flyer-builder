@@ -33,7 +33,7 @@ class Flyer
     
     file_data[:parsed] = Hash[JSON.parse(file.read).map {|k, v| [k.to_sym, v]}]
     
-    Prawn::Document.generate("#{dir}/one-agency-listing-#{file_data[:name]}.pdf") do
+    Prawn::Document.generate("#{dir}/#{file_data[:name]}.pdf") do
       
     font_families.update(
         'Clear Sans' => { 
