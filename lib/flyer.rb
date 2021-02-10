@@ -31,6 +31,7 @@ class Flyer
     file_data[:parsed] = Hash[JSON.parse(file.read).map {|k, v| [k.to_sym, v]}]
 
     Prawn::Document.generate("#{dir}/#{file_data[:name]}.pdf") do
+    parsed = file_data[:parsed]
 
     font_families.update(
         'Clear Sans' => { 
@@ -41,8 +42,6 @@ class Flyer
       )
 
       font 'Clear Sans'
-      parsed = file_data[:parsed]
-
       # Creates a black rectangle.
       canvas do
         fill_color @@backgroundColor
@@ -138,7 +137,6 @@ class Flyer
           end
 
           grid([1, 0], [2, 5]).bounding_box do
-            
             font_size 15
             font 'Clear Sans', style: :bold
             text "Call Agent:"
@@ -150,16 +148,21 @@ class Flyer
             text "Ph: #{parsed[:agent]["phone_number"]}", color: @@orange
             font_size 15
             font 'Clear Sans', style: :normal
-            text "Email: #{parsed[:agent]["email"]}", color: @@text_color
+            text "Em: #{parsed[:agent]["email"]}", color: @@text_color      
+            # end
+            if parsed[:has_qr_code]
+              qr_code_path = "#{file_data[:dir]}/#{parsed[:qr_code]}"
+              image qr_code_path,  width: 100, height: 100, fit: [100, 100], at: [10, 40]
+            end
           end          
 
           grid([3,0], [3,5]).bounding_box do
             move_down 10
-            image "#{@@asset_path}/bayshore-logo.png", width: 150, at: [5, 10]
+            image "#{@@asset_path}/bayshore-logo.png", width: 150, at: [5, 8]
             font_size 20
             font 'Clear Sans', style: :bold
             fill_color 'ffffff'
-            draw_text "Lic. NO. #0166", at: [400, -10]
+            draw_text "Lic. NO. #0166", at: [400, -12]
           end          
         end
       
