@@ -3,7 +3,6 @@ require 'json'
 require 'open-uri'
 require 'erb'
 
-
 include ERB::Util
 
 Prawn::Fonts::AFM.hide_m17n_warning = true
@@ -12,6 +11,7 @@ class Flyer
   @@backgroundColor = '000000'
   @@orange = "ff5921"
   @@text_color = 'ffffff'
+  @@residential = ["apartment", "home", "flat"]
 
   @@uri = URI::Parser.new
 
@@ -23,15 +23,15 @@ class Flyer
 
   def self.run(file_path)
     file_data = {}
-        
+
     file_data[:name] = File.basename(file_path, ".*")
     file_data[:dir] = dir = File.dirname(file_path)
 
     file = File.open(file_path)    
     file_data[:parsed] = Hash[JSON.parse(file.read).map {|k, v| [k.to_sym, v]}]
-    
+
     Prawn::Document.generate("#{dir}/#{file_data[:name]}.pdf") do
-      
+
     font_families.update(
         'Clear Sans' => { 
           normal: "#{@@asset_path}/fonts/ClearSans-Regular.ttf",
@@ -42,7 +42,7 @@ class Flyer
 
       font 'Clear Sans'
       parsed = file_data[:parsed]
-  
+
       # Creates a black rectangle.
       canvas do
         fill_color @@backgroundColor
@@ -57,13 +57,15 @@ class Flyer
         fill_rectangle([-100, cursor+10], 800, 60)
       end
 
+      @sale_type = parsed[:details]["tender"] || "For Sale"
+
       rotate(30, origin: [50, 700]) do
         fill_color @@orange
         fill_rectangle([-90, 700], 400, 50)
         fill_color 'ffffff'
         font_size 40
         font 'Clear Sans', style: :bold
-        draw_text 'For Sale', at: [10, 660]
+        draw_text @sale_type, at: [10, 660]
       end
       
       unless parsed[:agent]["profile_image"].is_a? NilClass
@@ -94,31 +96,37 @@ class Flyer
         bounding_box([0, cursor - 10], width: 540, height: 300) do
           define_grid(columns: 12, rows: 4)
           
-          grid(0, 0).bounding_box do
-            image "#{@@asset_path}/bed.png", width: 40
-          end
+          if @@residential.include? parsed[:listing_type] 
+            grid(0, 0).bounding_box do
+              image "#{@@asset_path}/bed.png", width: 40
+            end
 
-          grid(0, 1).bounding_box do
-            move_down 10
-            text "#{parsed[:details]["bedrooms"]}", color: 'ffffff'
-          end
+            grid(0, 1).bounding_box do
+              move_down 10
+              text "#{parsed[:details]["bedrooms"]}", color: 'ffffff'
+            end
 
-          grid(0, 2).bounding_box do
-            image "#{@@asset_path}/bath.png", width: 40
-          end
+            grid(0, 2).bounding_box do
+              image "#{@@asset_path}/bath.png", width: 40
+            end
 
-          grid(0, 3).bounding_box do
-            move_down 10
-            text "#{parsed[:details]["bathrooms"]}", color: 'ffffff'
-          end
+            grid(0, 3).bounding_box do
+              move_down 10
+              text "#{parsed[:details]["bathrooms"]}", color: 'ffffff'
+            end
 
-          grid(0, 4).bounding_box do
-            image "#{@@asset_path}/car.png", width: 40
-          end
+            grid(0, 4).bounding_box do
+              image "#{@@asset_path}/car.png", width: 40
+            end
 
-          grid(0, 5).bounding_box do
-            move_down 10
-            text "#{parsed[:details]["car_spaces"]}", color: 'ffffff'
+            grid(0, 5).bounding_box do
+              move_down 10
+              text "#{parsed[:details]["car_spaces"]}", color: 'ffffff'
+            end
+          else
+            grid([0, 0], [0, 5]).bounding_box do
+              # text parsed[:details]["type"], color: 'ffffff'
+            end
           end
 
           grid([0, 6], [3, 11]).bounding_box do
@@ -149,9 +157,9 @@ class Flyer
             move_down 10
             image "#{@@asset_path}/bayshore-logo.png", width: 150, at: [5, 10]
             font_size 20
-            move_down 10
             font 'Clear Sans', style: :bold
-            text "Lic. NO. #011", color: @@text_color
+            fill_color 'ffffff'
+            draw_text "Lic. NO. #0166", at: [400, -10]
           end          
         end
       
