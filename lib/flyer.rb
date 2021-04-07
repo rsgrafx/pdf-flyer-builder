@@ -1,7 +1,4 @@
-require 'prawn'
-require 'json'
-require 'open-uri'
-require 'erb'
+require_relative './loaders.rb'
 
 include ERB::Util
 
