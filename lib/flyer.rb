@@ -22,11 +22,14 @@ class Flyer
     file_data = {}
 
     file_data[:name] = File.basename(file_path, ".*")
+    
+    # Sets directory to build pdf file.
     file_data[:dir] = dir = File.dirname(file_path)
 
     file = File.open(file_path)    
     file_data[:parsed] = Hash[JSON.parse(file.read).map {|k, v| [k.to_sym, v]}]
 
+    # Generate pdf with dsl in same folder as path where json was placed.
     Prawn::Document.generate("#{dir}/#{file_data[:name]}.pdf") do
     parsed = file_data[:parsed]
 
